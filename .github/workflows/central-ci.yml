@@ -156,7 +156,14 @@ jobs:
         # Adapt based on what test infrastructure exists
         if [[ -f "run_tests.sh" ]]; then
           chmod +x run_tests.sh
-          ./run_tests.sh $test_type
+          docker run --rm \
+            --memory=2g \
+            --cpus=2 \
+            --user $(id -u):$(id -g) \
+            -v $(pwd):/workspace \
+            -w /workspace \
+            ia-robot-sim-test \
+            bash -c "source /opt/ros/humble/setup.bash && ./run_tests.sh $test_type"
         elif [[ -f "Dockerfile" ]]; then
           docker run --rm \
             --memory=2g \
