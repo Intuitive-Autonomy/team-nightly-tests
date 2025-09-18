@@ -23,7 +23,7 @@ on:
 env:
   # Repository configurations
   SIT_TO_STAND_REPO: 'sit-to-stand-planner'
-  ISAAC_SIM_NAV_REPO: 'isaac_sim_nav'
+  IA_ROBOT_SIM_REPO: 'ia_robot_sim'
 
 jobs:
   determine-repos:
@@ -35,7 +35,7 @@ jobs:
       id: parse
       run: |
         if [[ "${{ github.event.inputs.repositories }}" == "all" || "${{ github.event_name }}" == "schedule" ]]; then
-          echo "repositories=[\"sit-to-stand-planner\", \"isaac_sim_nav\"]" >> $GITHUB_OUTPUT
+          echo "repositories=[\"sit-to-stand-planner\", \"ia_robot_sim\"]" >> $GITHUB_OUTPUT
         else
           # Convert comma-separated string to JSON array
           repos="${{ github.event.inputs.repositories }}"
@@ -108,31 +108,31 @@ jobs:
         rm -rf sit-to-stand-planner || true
         docker rmi sit-to-stand-test || true
 
-  test-isaac-sim-nav:
+  test-ia-robot-sim:
     needs: determine-repos
-    if: contains(fromJson(needs.determine-repos.outputs.repositories), 'isaac_sim_nav')
+    if: contains(fromJson(needs.determine-repos.outputs.repositories), 'ia_robot_sim')
     runs-on: self-hosted
     timeout-minutes: 30
     steps:
     - name: Clean workspace
       run: |
         echo "Cleaning workspace..."
-        rm -rf isaac_sim_nav || true
+        rm -rf ia_robot_sim || true
         docker system prune -f || true
 
-    - name: Clone isaac_sim_nav
+    - name: Clone ia_robot_sim
       run: |
-        git clone https://github.com/${{ github.repository_owner }}/isaac_sim_nav.git
-        cd isaac_sim_nav
+        git clone https://github.com/${{ github.repository_owner }}/ia_robot_sim.git
+        cd ia_robot_sim
         git log --oneline -5
 
-    - name: Setup isaac_sim_nav environment
-      working-directory: ./isaac_sim_nav
+    - name: Setup ia_robot_sim environment
+      working-directory: ./ia_robot_sim
       run: |
-        echo "Setting up isaac_sim_nav environment..."
+        echo "Setting up ia_robot_sim environment..."
         # Check if Dockerfile exists, otherwise create a basic test setup
         if [[ -f "Dockerfile" ]]; then
-          docker build -t isaac-sim-nav-test .
+          docker build -t ia-robot-sim-test .
         elif [[ -f "requirements.txt" ]]; then
           # Create a basic Python environment for testing
           docker run --rm -v $(pwd):/workspace -w /workspace python:3.8-slim bash -c "
@@ -140,15 +140,15 @@ jobs:
             python -m pytest tests/ || python -m unittest discover tests/ || echo 'No standard test framework found'
           "
         else
-          echo "No clear build or test configuration found for isaac_sim_nav"
+          echo "No clear build or test configuration found for ia_robot_sim"
           ls -la
         fi
 
-    - name: Run isaac_sim_nav tests
-      working-directory: ./isaac_sim_nav
+    - name: Run ia_robot_sim tests
+      working-directory: ./ia_robot_sim
       run: |
         test_type="${{ github.event.inputs.test_type || 'smoke' }}"
-        echo "Running $test_type tests for isaac_sim_nav..."
+        echo "Running $test_type tests for ia_robot_sim..."
 
         # Adapt based on what test infrastructure exists
         if [[ -f "run_tests.sh" ]]; then
@@ -159,22 +159,22 @@ jobs:
             --memory=2g \
             --cpus=2 \
             -v $(pwd):/workspace \
-            isaac-sim-nav-test \
-            bash -c "echo 'Running isaac_sim_nav tests...' && ls -la"
+            ia-robot-sim-test \
+            bash -c "echo 'Running ia_robot_sim tests...' && ls -la"
         else
-          echo "Running basic validation for isaac_sim_nav..."
+          echo "Running basic validation for ia_robot_sim..."
           python -c "import sys; print(f'Python version: {sys.version}')"
           find . -name "*.py" -exec python -m py_compile {} \; || echo "Some Python files have syntax errors"
         fi
 
-    - name: Cleanup isaac_sim_nav
+    - name: Cleanup ia_robot_sim
       if: always()
       run: |
-        rm -rf isaac_sim_nav || true
-        docker rmi isaac-sim-nav-test || true
+        rm -rf ia_robot_sim || true
+        docker rmi ia-robot-sim-test || true
 
   report-results:
-    needs: [test-sit-to-stand-planner, test-isaac-sim-nav]
+    needs: [test-sit-to-stand-planner, test-ia-robot-sim]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -192,12 +192,12 @@ jobs:
           echo "| sit-to-stand-planner | ⏭️ SKIPPED |" >> $GITHUB_STEP_SUMMARY
         fi
 
-        if [[ "${{ needs.test-isaac-sim-nav.result }}" == "success" ]]; then
-          echo "| isaac_sim_nav | ✅ PASSED |" >> $GITHUB_STEP_SUMMARY
-        elif [[ "${{ needs.test-isaac-sim-nav.result }}" == "failure" ]]; then
-          echo "| isaac_sim_nav | ❌ FAILED |" >> $GITHUB_STEP_SUMMARY
-        elif [[ "${{ needs.test-isaac-sim-nav.result }}" == "skipped" ]]; then
-          echo "| isaac_sim_nav | ⏭️ SKIPPED |" >> $GITHUB_STEP_SUMMARY
+        if [[ "${{ needs.test-ia-robot-sim.result }}" == "success" ]]; then
+          echo "| ia_robot_sim | ✅ PASSED |" >> $GITHUB_STEP_SUMMARY
+        elif [[ "${{ needs.test-ia-robot-sim.result }}" == "failure" ]]; then
+          echo "| ia_robot_sim | ❌ FAILED |" >> $GITHUB_STEP_SUMMARY
+        elif [[ "${{ needs.test-ia-robot-sim.result }}" == "skipped" ]]; then
+          echo "| ia_robot_sim | ⏭️ SKIPPED |" >> $GITHUB_STEP_SUMMARY
         fi
 
         echo "" >> $GITHUB_STEP_SUMMARY
