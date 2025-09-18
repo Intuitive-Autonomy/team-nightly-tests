@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intuitive Autonomy - Team CI Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .card h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            margin: 10px 0;
+            transition: transform 0.2s ease;
+        }
+
+        .status-badge:hover {
+            transform: scale(1.05);
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .metric {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .quick-actions {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            display: inline-block;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            opacity: 0.8;
+            margin-top: 40px;
+        }
+
+        .emoji {
+            font-size: 1.2rem;
+        }
+
+        .refresh-info {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 10px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Intuitive Autonomy</h1>
+            <p>Team CI Dashboard - Real-time Status Monitoring</p>
+        </div>
+
+        <div class="refresh-info">
+            <span class="emoji">🔄</span> Last updated: <span id="lastUpdate"></span> | Status badges update automatically
+        </div>
+
+        <div class="dashboard">
+            <!-- Central CI Card -->
+            <div class="card">
+                <h3><span class="emoji">🎯</span> Central CI</h3>
+                <div class="status-badge">
+                    <a href="https://github.com/Intuitive-Autonomy/team-nightly-tests/actions">
+                        <img src="https://github.com/Intuitive-Autonomy/team-nightly-tests/workflows/Central%20CI%20-%20All%20Repositories/badge.svg" alt="Central CI Status">
+                    </a>
+                </div>
+                <p><strong>Description:</strong> Centralized testing for all repositories</p>
+                <p><strong>Schedule:</strong> Nightly at 2 AM UTC</p>
+                <div class="metrics">
+                    <div class="metric">
+                        <div class="metric-value">2</div>
+                        <div class="metric-label">Repos Tested</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">24h</div>
+                        <div class="metric-label">Auto Schedule</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sit-to-Stand Planner Card -->
+            <div class="card">
+                <h3><span class="emoji">🚶</span> Sit-to-Stand Planner</h3>
+                <div class="status-badge">
+                    <a href="https://github.com/Intuitive-Autonomy/sit-to-stand-planner/actions">
+                        <img src="https://github.com/Intuitive-Autonomy/sit-to-stand-planner/workflows/Self-Hosted%20CI/badge.svg" alt="Sit-to-Stand Planner CI Status">
+                    </a>
+                </div>
+                <p><strong>Description:</strong> Motion planning for sit-to-stand transitions</p>
+                <p><strong>Tech Stack:</strong> ROS Humble, Docker, Python</p>
+                <div class="metrics">
+                    <div class="metric">
+                        <div class="metric-value">ROS</div>
+                        <div class="metric-label">Framework</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">🐳</div>
+                        <div class="metric-label">Docker</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- IA Robot Sim Card -->
+            <div class="card">
+                <h3><span class="emoji">🤖</span> IA Robot Sim</h3>
+                <div class="status-badge">
+                    <a href="https://github.com/Intuitive-Autonomy/ia_robot_sim/actions">
+                        <img src="https://github.com/Intuitive-Autonomy/ia_robot_sim/workflows/CI/badge.svg" alt="IA Robot Sim CI Status">
+                    </a>
+                </div>
+                <p><strong>Description:</strong> Robot simulation using Genesis</p>
+                <p><strong>Tech Stack:</strong> Genesis, ROS2, Python</p>
+                <div class="metrics">
+                    <div class="metric">
+                        <div class="metric-value">Genesis</div>
+                        <div class="metric-label">Simulator</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value">ROS2</div>
+                        <div class="metric-label">Framework</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <h3><span class="emoji">⚡</span> Quick Actions</h3>
+            <div class="actions-grid">
+                <a href="https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci.yml" class="action-btn">
+                    🚀 Run Central CI
+                </a>
+                <a href="https://github.com/Intuitive-Autonomy/team-nightly-tests/actions" class="action-btn">
+                    📊 View All Runs
+                </a>
+                <a href="https://github.com/Intuitive-Autonomy/sit-to-stand-planner" class="action-btn">
+                    🚶 Sit-to-Stand Repo
+                </a>
+                <a href="https://github.com/Intuitive-Autonomy/ia_robot_sim" class="action-btn">
+                    🤖 Robot Sim Repo
+                </a>
+                <a href="https://github.com/Intuitive-Autonomy/team-nightly-tests/blob/master/README.md" class="action-btn">
+                    📖 Documentation
+                </a>
+                <a href="https://github.com/Intuitive-Autonomy" class="action-btn">
+                    🏢 Organization
+                </a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🛠️ Built with GitHub Actions | 🔄 Auto-refreshing badges | ⚡ Powered by Self-hosted Runners</p>
+            <p>Last repository update: <img src="https://img.shields.io/github/last-commit/Intuitive-Autonomy/team-nightly-tests?label=&style=flat-square&color=white" alt="Last Update"></p>
+        </div>
+    </div>
+
+    <script>
+        // Update the last updated timestamp
+        document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+
+        // Auto-refresh every 5 minutes to get latest badge status
+        setInterval(() => {
+            // Force reload of status badge images to get latest status
+            document.querySelectorAll('img[src*="badge.svg"]').forEach(img => {
+                const src = img.src;
+                img.src = src + '?t=' + Date.now();
+            });
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+        }, 300000); // 5 minutes
+    </script>
+</body>
+</html>
