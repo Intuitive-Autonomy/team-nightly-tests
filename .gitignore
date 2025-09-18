@@ -1,0 +1,30 @@
+# Test outputs and artifacts
+test-results/
+*.log
+*.xml
+coverage.xml
+.coverage
+__pycache__/
+*.pyc
+*.pyo
+
+# Temporary directories from cloned repos
+sit-to-stand-planner/
+isaac_sim_nav/
+
+# Docker artifacts
+*.tar
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# IDE artifacts
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local configuration
+.env
+.env.local

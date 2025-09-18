@@ -1,0 +1,125 @@
+name: Sit-to-Stand Planner CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Type of tests to run'
+        required: true
+        default: 'smoke'
+        type: choice
+        options:
+        - smoke
+        - all
+      repository_ref:
+        description: 'Branch/tag/commit to test'
+        required: false
+        default: 'main'
+        type: string
+
+env:
+  REPO_NAME: sit-to-stand-planner
+
+jobs:
+  test-sit-to-stand-planner:
+    runs-on: self-hosted
+    timeout-minutes: 30
+    steps:
+    - name: Clean workspace and environment
+      run: |
+        echo "Cleaning workspace for sit-to-stand-planner..."
+        rm -rf ${{ env.REPO_NAME }} || true
+        docker system prune -f || true
+        find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+        find . -name "*.pyc" -delete 2>/dev/null || true
+
+    - name: Clone repository
+      run: |
+        echo "Cloning ${{ env.REPO_NAME }} at ref: ${{ github.event.inputs.repository_ref || 'main' }}"
+        git clone https://github.com/${{ github.repository_owner }}/${{ env.REPO_NAME }}.git
+        cd ${{ env.REPO_NAME }}
+        git checkout ${{ github.event.inputs.repository_ref || 'main' }}
+        echo "Current commit:"
+        git log --oneline -1
+
+    - name: Build Docker test environment
+      working-directory: ./${{ env.REPO_NAME }}
+      run: |
+        echo "Building Docker test environment..."
+        docker build -t ${{ env.REPO_NAME }}-test .
+
+    - name: Run smoke tests
+      if: github.event.inputs.test_type == 'smoke' || github.event.inputs.test_type == ''
+      working-directory: ./${{ env.REPO_NAME }}
+      run: |
+        echo "Running smoke tests..."
+        docker run --rm \
+          --memory=2g \
+          --memory-swap=3g \
+          --cpus=2 \
+          --user $(id -u):$(id -g) \
+          -v $(pwd):/workspace \
+          ${{ env.REPO_NAME }}-test \
+          bash -c "
+            source /opt/ros/humble/setup.bash &&
+            echo 'Environment setup complete' &&
+            ./run_tests.sh smoke
+          "
+
+    - name: Run comprehensive tests
+      if: github.event.inputs.test_type == 'all'
+      working-directory: ./${{ env.REPO_NAME }}
+      run: |
+        echo "Running comprehensive tests..."
+        docker run --rm \
+          --memory=4g \
+          --memory-swap=6g \
+          --cpus=2 \
+          --user $(id -u):$(id -g) \
+          -v $(pwd):/workspace \
+          ${{ env.REPO_NAME }}-test \
+          bash -c "
+            source /opt/ros/humble/setup.bash &&
+            echo 'Running full test suite...' &&
+            ./run_tests.sh all &&
+            echo 'Installing code quality tools...' &&
+            pip install flake8 &&
+            echo 'Running linting...' &&
+            flake8 *.py test/*.py --max-line-length=100 --ignore=E203,W503 || true
+          "
+
+    - name: Generate test artifacts
+      if: always()
+      working-directory: ./${{ env.REPO_NAME }}
+      run: |
+        echo "Generating test artifacts..."
+        mkdir -p ../test-results
+
+        # Collect any test output files
+        find . -name "*.log" -o -name "test_*.xml" -o -name "coverage.xml" | while read file; do
+          cp "$file" "../test-results/" || true
+        done
+
+        # Generate basic test report
+        echo "# ${{ env.REPO_NAME }} Test Results" > ../test-results/summary.md
+        echo "- **Test Type:** ${{ github.event.inputs.test_type || 'smoke' }}" >> ../test-results/summary.md
+        echo "- **Repository Ref:** ${{ github.event.inputs.repository_ref || 'main' }}" >> ../test-results/summary.md
+        echo "- **Timestamp:** $(date -u)" >> ../test-results/summary.md
+        echo "- **Runner:** self-hosted" >> ../test-results/summary.md
+
+    - name: Upload test artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.REPO_NAME }}-test-results
+        path: test-results/
+        retention-days: 7
+
+    - name: Cleanup
+      if: always()
+      run: |
+        echo "Cleaning up..."
+        rm -rf ${{ env.REPO_NAME }} || true
+        docker rmi ${{ env.REPO_NAME }}-test || true
+        rm -rf test-results || true
+        docker system prune -f || true
