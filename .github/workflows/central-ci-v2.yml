@@ -1,0 +1,273 @@
+name: Central CI v2 - Scalable Multi-Repository Testing
+
+on:
+  workflow_dispatch:
+    inputs:
+      repositories:
+        description: 'Repositories to test (comma-separated, "all", or "enabled")'
+        required: true
+        default: 'enabled'
+        type: string
+      test_type:
+        description: 'Type of tests to run'
+        required: true
+        default: 'smoke'
+        type: choice
+        options:
+        - smoke
+        - comprehensive
+  schedule:
+    # Run nightly at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  load-config:
+    runs-on: ubuntu-latest
+    outputs:
+      repositories: ${{ steps.parse-config.outputs.repositories }}
+      test-config: ${{ steps.parse-config.outputs.test-config }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Parse repository configuration
+      id: parse-config
+      run: |
+        # Install yq for YAML parsing
+        sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+        sudo chmod +x /usr/local/bin/yq
+
+        # Parse input
+        input="${{ github.event.inputs.repositories || 'enabled' }}"
+        test_type="${{ github.event.inputs.test_type || 'smoke' }}"
+
+        # Get test configuration
+        memory_limit=$(yq eval ".test_types.${test_type}.memory_limit" repositories.yml)
+        cpu_limit=$(yq eval ".test_types.${test_type}.cpu_limit" repositories.yml)
+        test_config=$(echo "{\"memory_limit\":\"${memory_limit}\",\"cpu_limit\":${cpu_limit}}" | jq -c .)
+
+        # Determine which repositories to test
+        if [[ "$input" == "all" || "${{ github.event_name }}" == "schedule" ]]; then
+          # Get all repositories
+          repos=$(yq eval '.repositories[] | select(.enabled == true or .enabled == false) | .name' repositories.yml | jq -R -s -c 'split("\n")[:-1]')
+        elif [[ "$input" == "enabled" ]]; then
+          # Get only enabled repositories
+          repos=$(yq eval '.repositories[] | select(.enabled == true) | .name' repositories.yml | jq -R -s -c 'split("\n")[:-1]')
+        else
+          # Parse comma-separated list
+          repos=$(echo "$input" | jq -R -c 'split(",") | map(gsub("^\\s+|\\s+$"; ""))')
+        fi
+
+        echo "repositories=$repos" >> $GITHUB_OUTPUT
+        echo "test-config=$test_config" >> $GITHUB_OUTPUT
+
+        echo "Selected repositories: $repos"
+        echo "Test configuration: $test_config"
+
+  test-repositories:
+    needs: load-config
+    if: fromJson(needs.load-config.outputs.repositories)[0] != null
+    runs-on: self-hosted
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        repository: ${{ fromJson(needs.load-config.outputs.repositories) }}
+      fail-fast: false
+      max-parallel: 3
+
+    steps:
+    - name: Checkout central CI repository
+      uses: actions/checkout@v4
+
+    - name: Get repository configuration
+      id: repo-config
+      run: |
+        # Install yq for YAML parsing
+        sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+        sudo chmod +x /usr/local/bin/yq
+
+        repo="${{ matrix.repository }}"
+
+        # Extract repository configuration
+        type=$(yq eval ".repositories[] | select(.name == \"$repo\") | .type" repositories.yml)
+        description=$(yq eval ".repositories[] | select(.name == \"$repo\") | .description" repositories.yml)
+        test_command=$(yq eval ".repositories[] | select(.name == \"$repo\") | .test_command" repositories.yml)
+        timeout_minutes=$(yq eval ".repositories[] | select(.name == \"$repo\") | .timeout_minutes" repositories.yml)
+        enabled=$(yq eval ".repositories[] | select(.name == \"$repo\") | .enabled" repositories.yml)
+
+        echo "type=$type" >> $GITHUB_OUTPUT
+        echo "description=$description" >> $GITHUB_OUTPUT
+        echo "test_command=$test_command" >> $GITHUB_OUTPUT
+        echo "timeout_minutes=$timeout_minutes" >> $GITHUB_OUTPUT
+        echo "enabled=$enabled" >> $GITHUB_OUTPUT
+
+        echo "Repository: $repo"
+        echo "Type: $type"
+        echo "Description: $description"
+        echo "Test command: $test_command"
+        echo "Timeout: $timeout_minutes minutes"
+        echo "Enabled: $enabled"
+
+    - name: Clean workspace
+      run: |
+        echo "🧹 Cleaning workspace for ${{ matrix.repository }}..."
+        rm -rf ${{ matrix.repository }} || true
+        docker system prune -f || true
+        find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+
+    - name: Clone repository
+      run: |
+        echo "📥 Cloning ${{ matrix.repository }}..."
+        git clone https://github.com/${{ github.repository_owner }}/${{ matrix.repository }}.git
+        cd ${{ matrix.repository }}
+        echo "Current commit:"
+        git log --oneline -1
+
+    - name: Setup test environment
+      working-directory: ./${{ matrix.repository }}
+      run: |
+        echo "🔧 Setting up test environment for ${{ matrix.repository }}..."
+
+        # Check for different build systems
+        if [[ -f "Dockerfile" ]]; then
+          echo "Found Dockerfile - building Docker environment..."
+          docker build -t ${{ matrix.repository }}-test .
+        elif [[ -f "requirements.txt" && "${{ steps.repo-config.outputs.type }}" == "python" ]]; then
+          echo "Found Python project - setting up Python environment..."
+          docker run --rm \
+            -v $(pwd):/workspace \
+            -w /workspace \
+            python:3.8-slim \
+            bash -c "
+              apt-get update && apt-get install -y build-essential pkg-config libhdf5-dev &&
+              pip install --upgrade pip &&
+              pip install -r requirements.txt &&
+              pip install pytest flake8 coverage
+            "
+        elif [[ -f "package.xml" && "${{ steps.repo-config.outputs.type }}" == "ros" ]]; then
+          echo "Found ROS package - using ROS environment..."
+          docker pull osrf/ros:humble-desktop
+        else
+          echo "Using generic test approach..."
+        fi
+
+    - name: Run tests
+      working-directory: ./${{ matrix.repository }}
+      timeout-minutes: ${{ fromJson(steps.repo-config.outputs.timeout_minutes) }}
+      run: |
+        test_type="${{ github.event.inputs.test_type || 'smoke' }}"
+        test_config='${{ needs.load-config.outputs.test-config }}'
+        memory_limit=$(echo "$test_config" | jq -r '.memory_limit')
+        cpu_limit=$(echo "$test_config" | jq -r '.cpu_limit')
+
+        echo "🧪 Running $test_type tests for ${{ matrix.repository }}..."
+        echo "Memory limit: $memory_limit, CPU limit: $cpu_limit"
+
+        # Execute based on repository type and available infrastructure
+        if [[ -f "Dockerfile" ]]; then
+          echo "Running tests in Docker environment..."
+          docker run --rm \
+            --memory=$memory_limit \
+            --cpus=$cpu_limit \
+            --user $(id -u):$(id -g) \
+            -v $(pwd):/workspace \
+            -w /workspace \
+            ${{ matrix.repository }}-test \
+            bash -c "
+              if [[ -f '/opt/ros/humble/setup.bash' ]]; then
+                source /opt/ros/humble/setup.bash
+              fi
+              ${{ steps.repo-config.outputs.test_command }} $test_type || ${{ steps.repo-config.outputs.test_command }}
+            "
+        elif [[ "${{ steps.repo-config.outputs.type }}" == "ros" ]]; then
+          echo "Running ROS tests..."
+          docker run --rm \
+            --memory=$memory_limit \
+            --cpus=$cpu_limit \
+            -v $(pwd):/workspace \
+            -w /workspace \
+            osrf/ros:humble-desktop \
+            bash -c "
+              source /opt/ros/humble/setup.bash &&
+              ${{ steps.repo-config.outputs.test_command }}
+            "
+        else
+          echo "Running generic tests..."
+          if [[ -f "${{ steps.repo-config.outputs.test_command }}" ]]; then
+            chmod +x "${{ steps.repo-config.outputs.test_command }}"
+            ./${{ steps.repo-config.outputs.test_command }} $test_type
+          else
+            ${{ steps.repo-config.outputs.test_command }}
+          fi
+        fi
+
+    - name: Collect test artifacts
+      if: always()
+      working-directory: ./${{ matrix.repository }}
+      run: |
+        echo "📊 Collecting test artifacts for ${{ matrix.repository }}..."
+        mkdir -p ../test-results/${{ matrix.repository }}
+
+        # Collect various test output files
+        find . -name "*.log" -o -name "test_*.xml" -o -name "coverage.xml" -o -name "*.pytest_cache" | while read file; do
+          cp -r "$file" "../test-results/${{ matrix.repository }}/" 2>/dev/null || true
+        done
+
+        # Generate test summary
+        cat > "../test-results/${{ matrix.repository }}/summary.md" << EOF
+        # ${{ matrix.repository }} Test Results
+
+        - **Repository:** ${{ matrix.repository }}
+        - **Type:** ${{ steps.repo-config.outputs.type }}
+        - **Description:** ${{ steps.repo-config.outputs.description }}
+        - **Test Type:** ${{ github.event.inputs.test_type || 'smoke' }}
+        - **Test Command:** ${{ steps.repo-config.outputs.test_command }}
+        - **Timestamp:** $(date -u)
+        - **Runner:** self-hosted
+        - **Status:** \${{ job.status }}
+        EOF
+
+    - name: Upload test artifacts
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-${{ matrix.repository }}
+        path: test-results/${{ matrix.repository }}/
+        retention-days: 7
+
+    - name: Cleanup
+      if: always()
+      run: |
+        echo "🧹 Cleaning up ${{ matrix.repository }}..."
+        rm -rf ${{ matrix.repository }} || true
+        docker rmi ${{ matrix.repository }}-test 2>/dev/null || true
+        rm -rf test-results || true
+        docker system prune -f || true
+
+  report-results:
+    needs: [load-config, test-repositories]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+    - name: Generate comprehensive test report
+      run: |
+        echo "## 🤖 Central CI v2 Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "| Repository | Status | Type | Description |" >> $GITHUB_STEP_SUMMARY
+        echo "|------------|--------|------|-------------|" >> $GITHUB_STEP_SUMMARY
+
+        repositories='${{ needs.load-config.outputs.repositories }}'
+        echo "$repositories" | jq -r '.[]' | while read repo; do
+          # This is a simplified status check - in a real implementation,
+          # you'd check the actual job results from the matrix
+          echo "| $repo | ⏳ See job details | - | Repository test |" >> $GITHUB_STEP_SUMMARY
+        done
+
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Configuration:**" >> $GITHUB_STEP_SUMMARY
+        echo "- **Triggered by:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Test type:** ${{ github.event.inputs.test_type || 'smoke' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Repositories tested:** $(echo '${{ needs.load-config.outputs.repositories }}' | jq length)" >> $GITHUB_STEP_SUMMARY
+        echo "- **Timestamp:** $(date -u)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "📊 **[View Live Dashboard](https://intuitive-autonomy.github.io/team-nightly-tests)**" >> $GITHUB_STEP_SUMMARY

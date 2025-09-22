@@ -8,11 +8,11 @@ This repository provides centralized CI testing for multiple robotics projects i
 
 ## 🚀 Project Status
 
-| Repository | Status | Last Run | Description |
-|------------|--------|----------|-------------|
-| **Central CI** | [![Central CI](https://github.com/Intuitive-Autonomy/team-nightly-tests/workflows/Central%20CI%20-%20All%20Repositories/badge.svg)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions) | [![Last Run](https://img.shields.io/github/last-commit/Intuitive-Autonomy/team-nightly-tests?label=Last%20Run)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions) | Centralized testing for all repositories |
-| **Sit-to-Stand Planner** | [![CI](https://github.com/Intuitive-Autonomy/sit-to-stand-planner/workflows/Self-Hosted%20CI/badge.svg)](https://github.com/Intuitive-Autonomy/sit-to-stand-planner/actions) | [![Last Commit](https://img.shields.io/github/last-commit/Intuitive-Autonomy/sit-to-stand-planner)](https://github.com/Intuitive-Autonomy/sit-to-stand-planner) | Motion planning for sit-to-stand transitions |
-| **IA Robot Sim** | [![CI](https://github.com/Intuitive-Autonomy/ia_robot_sim/workflows/CI/badge.svg)](https://github.com/Intuitive-Autonomy/ia_robot_sim/actions) | [![Last Commit](https://img.shields.io/github/last-commit/Intuitive-Autonomy/ia_robot_sim)](https://github.com/Intuitive-Autonomy/ia_robot_sim) | Robot simulation using Genesis |
+| Repository | Status | Description |
+|------------|--------|-------------|
+| **Central CI** | [![Central CI](https://github.com/Intuitive-Autonomy/team-nightly-tests/workflows/Central%20CI%20-%20All%20Repositories/badge.svg)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions) | Centralized testing for all repositories |
+| **Sit-to-Stand Planner** | [![CI](https://github.com/Intuitive-Autonomy/sit-to-stand-planner/workflows/Self-Hosted%20CI/badge.svg)](https://github.com/Intuitive-Autonomy/sit-to-stand-planner/actions) | Motion planning for sit-to-stand transitions |
+| **IA Robot Sim** | [![CI](https://github.com/Intuitive-Autonomy/ia_robot_sim/workflows/CI/badge.svg)](https://github.com/Intuitive-Autonomy/ia_robot_sim/actions) | Robot simulation using Genesis |
 
 📊 **[View Live Dashboard](https://intuitive-autonomy.github.io/team-nightly-tests)** | 🔄 **[Central CI Actions](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions)**
 

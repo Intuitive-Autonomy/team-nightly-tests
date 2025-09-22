@@ -1,0 +1,94 @@
+# Central CI Repository Configuration
+# This file defines which repositories are tested by the central CI system
+
+repositories:
+  # Active repositories (currently tested)
+  - name: sit-to-stand-planner
+    type: ros
+    description: Motion planning for sit-to-stand transitions
+    test_command: "./run_tests.sh"
+    timeout_minutes: 30
+    tech_stack: ["ROS Humble", "Docker", "Python"]
+    enabled: true
+
+  - name: ia_robot_sim
+    type: genesis
+    description: Robot simulation using Genesis
+    test_command: "./run_tests.sh"
+    timeout_minutes: 45
+    tech_stack: ["Genesis", "ROS2", "Python"]
+    enabled: true
+
+  # Additional repositories (can be enabled when ready)
+  - name: genesis_ros
+    type: ros
+    description: ROS2 bridge for the Genesis simulator
+    test_command: "colcon test"
+    timeout_minutes: 30
+    tech_stack: ["ROS2", "Genesis", "C++"]
+    enabled: false
+
+  - name: ia_robot_urdf
+    type: ros
+    description: Robot description files for IA robot
+    test_command: "colcon test"
+    timeout_minutes: 15
+    tech_stack: ["ROS2", "URDF", "YAML"]
+    enabled: false
+
+  - name: robot_self_filter
+    type: ros
+    description: ROS2 version of the robot_self_filter package
+    test_command: "colcon test"
+    timeout_minutes: 20
+    tech_stack: ["ROS2", "C++", "PCL"]
+    enabled: false
+
+  - name: pose-estimation
+    type: python
+    description: 3D human pose estimation with monocular RGB camera
+    test_command: "pytest tests/"
+    timeout_minutes: 25
+    tech_stack: ["Python", "OpenCV", "PyTorch"]
+    enabled: false
+
+  - name: human-pose-ia
+    type: python
+    description: Human pose estimation for IA applications
+    test_command: "python -m pytest"
+    timeout_minutes: 20
+    tech_stack: ["Python", "TensorFlow", "OpenCV"]
+    enabled: false
+
+# Test configuration
+test_types:
+  smoke:
+    description: Basic validation and compilation checks
+    memory_limit: "2g"
+    cpu_limit: 2
+
+  comprehensive:
+    description: Full test suite with linting and coverage
+    memory_limit: "4g"
+    cpu_limit: 2
+
+# Global settings
+global:
+  # Default runner type
+  runner: self-hosted
+
+  # Cleanup settings
+  cleanup_after_test: true
+  docker_prune: true
+
+  # Notification settings (future enhancement)
+  notifications:
+    slack_webhook: ""
+    email_recipients: []
+
+  # Scheduling
+  nightly_schedule: "0 2 * * *"  # 2 AM UTC
+
+  # Resource limits
+  max_parallel_jobs: 3
+  default_timeout: 30
