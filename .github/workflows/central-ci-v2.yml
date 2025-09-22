@@ -33,15 +33,11 @@ jobs:
     - name: Parse repository configuration
       id: parse-config
       run: |
-        # Install yq for YAML parsing
-        sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-        sudo chmod +x /usr/local/bin/yq
-
         # Parse input
         input="${{ github.event.inputs.repositories || 'enabled' }}"
         test_type="${{ github.event.inputs.test_type || 'smoke' }}"
 
-        # Get test configuration
+        # Get test configuration using system-installed yq
         memory_limit=$(yq eval ".test_types.${test_type}.memory_limit" repositories.yml)
         cpu_limit=$(yq eval ".test_types.${test_type}.cpu_limit" repositories.yml)
         test_config=$(echo "{\"memory_limit\":\"${memory_limit}\",\"cpu_limit\":${cpu_limit}}" | jq -c .)
@@ -82,13 +78,9 @@ jobs:
     - name: Get repository configuration
       id: repo-config
       run: |
-        # Install yq for YAML parsing
-        sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-        sudo chmod +x /usr/local/bin/yq
-
         repo="${{ matrix.repository }}"
 
-        # Extract repository configuration
+        # Extract repository configuration using system-installed yq
         type=$(yq eval ".repositories[] | select(.name == \"$repo\") | .type" repositories.yml)
         description=$(yq eval ".repositories[] | select(.name == \"$repo\") | .description" repositories.yml)
         test_command=$(yq eval ".repositories[] | select(.name == \"$repo\") | .test_command" repositories.yml)
