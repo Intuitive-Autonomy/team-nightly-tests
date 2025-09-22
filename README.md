@@ -2,7 +2,7 @@
 
 [![Central CI](https://github.com/Intuitive-Autonomy/team-nightly-tests/workflows/Central%20CI%20-%20All%20Repositories/badge.svg)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions)
 [![Sit-to-Stand Planner](https://github.com/Intuitive-Autonomy/sit-to-stand-planner/workflows/Self-Hosted%20CI/badge.svg)](https://github.com/Intuitive-Autonomy/sit-to-stand-planner/actions)
-[![IA Robot Sim](https://github.com/Intuitive-Autonomy/ia_robot_sim/workflows/CI/badge.svg)](https://github.com/Intuitive-Autonomy/ia_robot_sim/actions)
+[![IA Robot Sim](https://github.com/Intuitive-Autonomy/ia_robot_sim/workflows/Self-Hosted%20CI/badge.svg)](https://github.com/Intuitive-Autonomy/ia_robot_sim/actions)
 
 This repository provides centralized CI testing for multiple robotics projects in the team.
 
@@ -12,7 +12,7 @@ This repository provides centralized CI testing for multiple robotics projects i
 |------------|--------|-------------|
 | **Central CI** | [![Central CI](https://github.com/Intuitive-Autonomy/team-nightly-tests/workflows/Central%20CI%20-%20All%20Repositories/badge.svg)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions) | Centralized testing for all repositories |
 | **Sit-to-Stand Planner** | [![CI](https://github.com/Intuitive-Autonomy/sit-to-stand-planner/workflows/Self-Hosted%20CI/badge.svg)](https://github.com/Intuitive-Autonomy/sit-to-stand-planner/actions) | Motion planning for sit-to-stand transitions |
-| **IA Robot Sim** | [![CI](https://github.com/Intuitive-Autonomy/ia_robot_sim/workflows/CI/badge.svg)](https://github.com/Intuitive-Autonomy/ia_robot_sim/actions) | Robot simulation using Genesis |
+| **IA Robot Sim** | [![CI](https://github.com/Intuitive-Autonomy/ia_robot_sim/workflows/Self-Hosted%20CI/badge.svg)](https://github.com/Intuitive-Autonomy/ia_robot_sim/actions) | Robot simulation using Genesis |
 
 📊 **[View Dashboard v2 (Scalable)](https://intuitive-autonomy.github.io/team-nightly-tests/dashboard-v2.html)** | 🔄 **[Central CI v2 Actions](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml)** | 📊 **[Dashboard v1](https://intuitive-autonomy.github.io/team-nightly-tests)**
 

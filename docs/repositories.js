@@ -22,7 +22,7 @@ export const repositoryConfig = {
             techStack: ['Genesis', 'ROS2', 'Python'],
             type: 'genesis',
             emoji: '🤖',
-            workflowName: 'CI',
+            workflowName: 'Self-Hosted%20CI',
             isPrivate: true,
             enabled: true
         }
