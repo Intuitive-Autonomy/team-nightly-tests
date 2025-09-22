@@ -14,12 +14,37 @@ This repository provides centralized CI testing for multiple robotics projects i
 | **Sit-to-Stand Planner** | [![CI](https://github.com/Intuitive-Autonomy/sit-to-stand-planner/workflows/Self-Hosted%20CI/badge.svg)](https://github.com/Intuitive-Autonomy/sit-to-stand-planner/actions) | Motion planning for sit-to-stand transitions |
 | **IA Robot Sim** | [![CI](https://github.com/Intuitive-Autonomy/ia_robot_sim/workflows/CI/badge.svg)](https://github.com/Intuitive-Autonomy/ia_robot_sim/actions) | Robot simulation using Genesis |
 
-📊 **[View Live Dashboard](https://intuitive-autonomy.github.io/team-nightly-tests)** | 🔄 **[Central CI Actions](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions)**
+📊 **[View Dashboard v2 (Scalable)](https://intuitive-autonomy.github.io/team-nightly-tests/dashboard-v2.html)** | 🔄 **[Central CI v2 Actions](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml)** | 📊 **[Dashboard v1](https://intuitive-autonomy.github.io/team-nightly-tests)**
+
+## Central CI v2 Features
+
+### **🚀 What's New**
+- **Scalable Architecture**: Configuration-driven testing for unlimited repositories
+- **Matrix Execution**: Test multiple repositories in parallel (up to 3 concurrent)
+- **Dynamic Discovery**: Auto-detects enabled/disabled repositories from `repositories.yml`
+- **Type-Aware Testing**: Different strategies for ROS, Python, Genesis, and other project types
+- **Enhanced Dashboard**: Real-time GitHub API integration with filtering and statistics
+
+### **📊 Two Dashboard Options**
+- **[Dashboard v2 (Recommended)](https://intuitive-autonomy.github.io/team-nightly-tests/dashboard-v2.html)**: Scalable, real-time, with filtering
+- **[Dashboard v1 (Legacy)](https://intuitive-autonomy.github.io/team-nightly-tests)**: Original fixed dashboard
+
+### **⚡ Two Workflow Systems**
+- **Central CI v2**: `gh workflow run central-ci-v2.yml` - Scalable, configuration-driven
+- **Central CI v1**: `gh workflow run central-ci.yml` - Legacy, hardcoded
 
 ## Repositories Managed
 
-- **sit-to-stand-planner**: Motion planning for sit-to-stand transitions
-- **isaac_sim_nav**: Navigation simulation using Isaac Sim
+### **Currently Active** ✅
+- **sit-to-stand-planner**: Motion planning for sit-to-stand transitions (ROS)
+- **ia_robot_sim**: Robot simulation using Genesis (Genesis + ROS2)
+
+### **Ready to Enable** 🔧
+- **genesis_ros**: ROS2 bridge for Genesis simulator (ROS2)
+- **ia_robot_urdf**: Robot description files (ROS2 + URDF)
+- **robot_self_filter**: Robot self-filtering package (ROS2 + C++)
+- **pose-estimation**: 3D pose estimation (Python + PyTorch)
+- **human-pose-ia**: Human pose for IA (Python + TensorFlow)
 
 ## Workflows
 
