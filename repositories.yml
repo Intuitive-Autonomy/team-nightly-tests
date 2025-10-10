@@ -19,14 +19,14 @@ repositories:
     tech_stack: ["Genesis", "ROS2", "Python"]
     enabled: true
 
-  # Additional repositories (can be enabled when ready)
+  # Additional repositories (ready to enable)
   - name: genesis_ros
     type: ros
     description: ROS2 bridge for the Genesis simulator
     test_command: "colcon test"
     timeout_minutes: 30
     tech_stack: ["ROS2", "Genesis", "C++"]
-    enabled: false
+    enabled: true
 
   - name: ia_robot_urdf
     type: ros
@@ -34,16 +34,41 @@ repositories:
     test_command: "colcon test"
     timeout_minutes: 15
     tech_stack: ["ROS2", "URDF", "YAML"]
-    enabled: false
+    enabled: true
 
   - name: robot_self_filter
     type: ros
     description: ROS2 version of the robot_self_filter package
     test_command: "colcon test"
-    timeout_minutes: 20
+    timeout_minutes: 25
     tech_stack: ["ROS2", "C++", "PCL"]
-    enabled: false
+    enabled: false  # No write access yet
 
+  - name: Genesis_IA
+    type: genesis
+    description: Genesis Integration for IA
+    test_command: "./run_tests.sh"
+    timeout_minutes: 50
+    tech_stack: ["Genesis", "Python", "Simulation"]
+    enabled: true
+
+  - name: human-tracking
+    type: python
+    description: Tracks human pixels from vertically concatenated RGB cameras
+    test_command: "pytest tests/ -v"
+    timeout_minutes: 20
+    tech_stack: ["Python", "OpenCV", "Computer Vision"]
+    enabled: true
+
+  - name: robot_planner
+    type: python
+    description: Robot planning algorithms
+    test_command: "pytest tests/ -v"
+    timeout_minutes: 25
+    tech_stack: ["Python", "Planning", "Algorithms"]
+    enabled: false  # No write access yet
+
+  # Legacy/deprecated repositories (kept for reference)
   - name: pose-estimation
     type: python
     description: 3D human pose estimation with monocular RGB camera
