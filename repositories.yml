@@ -23,7 +23,7 @@ repositories:
   - name: genesis_ros
     type: ros
     description: ROS2 bridge for the Genesis simulator
-    test_command: "colcon test"
+    test_command: "./run_tests.sh"
     timeout_minutes: 30
     tech_stack: ["ROS2", "Genesis", "C++"]
     enabled: true
@@ -31,7 +31,7 @@ repositories:
   - name: ia_robot_urdf
     type: ros
     description: Robot description files for IA robot
-    test_command: "colcon test"
+    test_command: "./run_tests.sh"
     timeout_minutes: 15
     tech_stack: ["ROS2", "URDF", "YAML"]
     enabled: true
@@ -39,7 +39,7 @@ repositories:
   - name: robot_self_filter
     type: ros
     description: ROS2 version of the robot_self_filter package
-    test_command: "colcon test"
+    test_command: "./run_tests.sh"
     timeout_minutes: 25
     tech_stack: ["ROS2", "C++", "PCL"]
     enabled: false  # No write access yet
@@ -55,7 +55,7 @@ repositories:
   - name: human-tracking
     type: python
     description: Tracks human pixels from vertically concatenated RGB cameras
-    test_command: "pytest tests/ -v"
+    test_command: "./run_tests.sh"
     timeout_minutes: 20
     tech_stack: ["Python", "OpenCV", "Computer Vision"]
     enabled: true
@@ -63,7 +63,7 @@ repositories:
   - name: robot_planner
     type: python
     description: Robot planning algorithms
-    test_command: "pytest tests/ -v"
+    test_command: "./run_tests.sh"
     timeout_minutes: 25
     tech_stack: ["Python", "Planning", "Algorithms"]
     enabled: false  # No write access yet
