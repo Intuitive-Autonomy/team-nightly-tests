@@ -161,10 +161,17 @@ jobs:
 
         if [[ -f "Dockerfile" ]]; then
           echo "Running tests in Docker environment..."
+
+          # Don't use --user for Python repos that need pip install
+          USER_FLAG=""
+          if [[ "${{ steps.repo-config.outputs.type }}" != "python" ]]; then
+            USER_FLAG="--user $(id -u):$(id -g)"
+          fi
+
           docker run --rm \
             --memory=$memory_limit \
             --cpus=$cpu_limit \
-            --user $(id -u):$(id -g) \
+            $USER_FLAG \
             -v $(pwd):/workspace \
             -w /workspace \
             ${REPO_LOWER}-test \
@@ -247,19 +254,27 @@ jobs:
     permissions:
       contents: write
     steps:
-    - name: Checkout badges branch
+    - name: Checkout repository
       uses: actions/checkout@v4
       with:
-        ref: badges
         path: badges-repo
-      continue-on-error: true
 
-    - name: Create badges directory
+    - name: Setup badges branch
       run: |
-        mkdir -p badges-repo/badges
         cd badges-repo
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        # Try to checkout badges branch, create if it doesn't exist
+        git fetch origin badges 2>/dev/null || true
+        if git rev-parse --verify origin/badges >/dev/null 2>&1; then
+          git checkout badges
+        else
+          git checkout --orphan badges
+          git rm -rf . 2>/dev/null || true
+        fi
+
+        mkdir -p badges
 
     - name: Generate per-repository status badges
       env:
