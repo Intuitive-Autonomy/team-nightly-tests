@@ -6,7 +6,7 @@ This repository provides centralized CI testing for multiple robotics projects i
 
 ## Project Status
 
-All repositories are tested through the Central CI v2 system:
+All repositories are tested through the Central CI v2 system. Click the badge to see overall status, or view the [dashboard](https://intuitive-autonomy.github.io/team-nightly-tests/dashboard-v2.html) for per-repository test results.
 
 | Repository | CI Status | Description |
 |------------|-----------|-------------|
@@ -16,6 +16,10 @@ All repositories are tested through the Central CI v2 system:
 | **ia_robot_urdf** | [![CI](https://github.com/Intuitive-Autonomy/team-nightly-tests/workflows/Central%20CI%20v2%20-%20Scalable%20Multi-Repository%20Testing/badge.svg)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml) | Robot description files |
 | **Genesis_IA** | [![CI](https://github.com/Intuitive-Autonomy/team-nightly-tests/workflows/Central%20CI%20v2%20-%20Scalable%20Multi-Repository%20Testing/badge.svg)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml) | Genesis Integration for IA |
 | **human-tracking** | [![CI](https://github.com/Intuitive-Autonomy/team-nightly-tests/workflows/Central%20CI%20v2%20-%20Scalable%20Multi-Repository%20Testing/badge.svg)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml) | Human pixel tracking from RGB cameras |
+
+To see which specific repository tests passed or failed, check:
+- **[Live Dashboard](https://intuitive-autonomy.github.io/team-nightly-tests/dashboard-v2.html)** - Shows per-repository test status
+- **[Workflow Runs](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml)** - Click any run to see individual job results
 
 **[View Dashboard](https://intuitive-autonomy.github.io/team-nightly-tests/dashboard-v2.html)** | **[Central CI Actions](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml)**
 
