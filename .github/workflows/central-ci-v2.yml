@@ -244,7 +244,83 @@ jobs:
     needs: [load-config, test-repositories]
     if: always()
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
+    - name: Checkout badges branch
+      uses: actions/checkout@v4
+      with:
+        ref: badges
+        path: badges-repo
+      continue-on-error: true
+
+    - name: Create badges directory
+      run: |
+        mkdir -p badges-repo/badges
+        cd badges-repo
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Generate per-repository status badges
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        # Get the current workflow run ID
+        RUN_ID="${{ github.run_id }}"
+
+        # Fetch all jobs for this workflow run
+        JOBS=$(gh api repos/${{ github.repository }}/actions/runs/${RUN_ID}/jobs --jq '.jobs')
+
+        # Process each repository
+        repositories='${{ needs.load-config.outputs.repositories }}'
+        echo "$repositories" | jq -r '.[]' | while read repo; do
+          echo "Processing badge for $repo..."
+
+          # Find the job for this repository
+          JOB_CONCLUSION=$(echo "$JOBS" | jq -r ".[] | select(.name == \"test-repositories ($repo)\") | .conclusion")
+
+          # Determine badge parameters
+          if [[ "$JOB_CONCLUSION" == "success" ]]; then
+            MESSAGE="passing"
+            COLOR="brightgreen"
+          elif [[ "$JOB_CONCLUSION" == "failure" ]]; then
+            MESSAGE="failing"
+            COLOR="red"
+          elif [[ "$JOB_CONCLUSION" == "skipped" ]]; then
+            MESSAGE="skipped"
+            COLOR="lightgrey"
+          elif [[ "$JOB_CONCLUSION" == "cancelled" ]]; then
+            MESSAGE="cancelled"
+            COLOR="orange"
+          else
+            MESSAGE="unknown"
+            COLOR="lightgrey"
+          fi
+
+          # Create shields.io endpoint JSON
+          cat > "badges-repo/badges/${repo}.json" << EOF
+{
+  "schemaVersion": 1,
+  "label": "tests",
+  "message": "${MESSAGE}",
+  "color": "${COLOR}"
+}
+EOF
+
+          echo "Created badge for $repo: $MESSAGE ($COLOR)"
+        done
+
+    - name: Commit and push badges
+      run: |
+        cd badges-repo
+        git add badges/
+        if git diff --staged --quiet; then
+          echo "No changes to badges"
+        else
+          git commit -m "Update test status badges [skip ci]"
+          git push origin badges || (git checkout --orphan badges && git add badges/ && git commit -m "Initialize badges branch" && git push -u origin badges)
+        fi
+
     - name: Generate comprehensive test report
       run: |
         echo "## 🤖 Central CI v2 Test Results" >> $GITHUB_STEP_SUMMARY

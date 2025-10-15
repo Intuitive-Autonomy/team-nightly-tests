@@ -6,20 +6,18 @@ This repository provides centralized CI testing for multiple robotics projects i
 
 ## Project Status
 
-All repositories are tested through the Central CI v2 system. Click the badge to see overall status, or view the [dashboard](https://intuitive-autonomy.github.io/team-nightly-tests/dashboard-v2.html) for per-repository test results.
+All repositories are tested through the Central CI v2 system. Each badge shows the individual repository's test status from the latest run.
 
-| Repository | CI Status | Description |
-|------------|-----------|-------------|
-| **sit-to-stand-planner** | [![CI](https://github.com/Intuitive-Autonomy/team-nightly-tests/workflows/Central%20CI%20v2%20-%20Scalable%20Multi-Repository%20Testing/badge.svg)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml) | Motion planning for sit-to-stand transitions |
-| **ia_robot_sim** | [![CI](https://github.com/Intuitive-Autonomy/team-nightly-tests/workflows/Central%20CI%20v2%20-%20Scalable%20Multi-Repository%20Testing/badge.svg)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml) | Robot simulation using Genesis |
-| **genesis_ros** | [![CI](https://github.com/Intuitive-Autonomy/team-nightly-tests/workflows/Central%20CI%20v2%20-%20Scalable%20Multi-Repository%20Testing/badge.svg)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml) | ROS2 bridge for Genesis simulator |
-| **ia_robot_urdf** | [![CI](https://github.com/Intuitive-Autonomy/team-nightly-tests/workflows/Central%20CI%20v2%20-%20Scalable%20Multi-Repository%20Testing/badge.svg)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml) | Robot description files |
-| **Genesis_IA** | [![CI](https://github.com/Intuitive-Autonomy/team-nightly-tests/workflows/Central%20CI%20v2%20-%20Scalable%20Multi-Repository%20Testing/badge.svg)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml) | Genesis Integration for IA |
-| **human-tracking** | [![CI](https://github.com/Intuitive-Autonomy/team-nightly-tests/workflows/Central%20CI%20v2%20-%20Scalable%20Multi-Repository%20Testing/badge.svg)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml) | Human pixel tracking from RGB cameras |
+| Repository | Test Status | Description |
+|------------|-------------|-------------|
+| **sit-to-stand-planner** | [![Test Status](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Intuitive-Autonomy/team-nightly-tests/badges/badges/sit-to-stand-planner.json)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml) | Motion planning for sit-to-stand transitions |
+| **ia_robot_sim** | [![Test Status](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Intuitive-Autonomy/team-nightly-tests/badges/badges/ia_robot_sim.json)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml) | Robot simulation using Genesis |
+| **genesis_ros** | [![Test Status](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Intuitive-Autonomy/team-nightly-tests/badges/badges/genesis_ros.json)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml) | ROS2 bridge for Genesis simulator |
+| **ia_robot_urdf** | [![Test Status](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Intuitive-Autonomy/team-nightly-tests/badges/badges/ia_robot_urdf.json)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml) | Robot description files |
+| **Genesis_IA** | [![Test Status](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Intuitive-Autonomy/team-nightly-tests/badges/badges/Genesis_IA.json)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml) | Genesis Integration for IA |
+| **human-tracking** | [![Test Status](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Intuitive-Autonomy/team-nightly-tests/badges/badges/human-tracking.json)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml) | Human pixel tracking from RGB cameras |
 
-To see which specific repository tests passed or failed, check:
-- **[Live Dashboard](https://intuitive-autonomy.github.io/team-nightly-tests/dashboard-v2.html)** - Shows per-repository test status
-- **[Workflow Runs](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml)** - Click any run to see individual job results
+Click any badge to see detailed test logs. For real-time status, visit the **[Live Dashboard](https://intuitive-autonomy.github.io/team-nightly-tests/dashboard-v2.html)**.
 
 **[View Dashboard](https://intuitive-autonomy.github.io/team-nightly-tests/dashboard-v2.html)** | **[Central CI Actions](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml)**
 
