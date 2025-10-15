@@ -1,22 +1,19 @@
 # Team Nightly Tests - Central CI Repository
 
-[![Central CI](https://github.com/Intuitive-Autonomy/team-nightly-tests/workflows/Central%20CI%20-%20All%20Repositories/badge.svg)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions)
-[![Sit-to-Stand Planner](https://github.com/Intuitive-Autonomy/sit-to-stand-planner/workflows/Self-Hosted%20CI/badge.svg)](https://github.com/Intuitive-Autonomy/sit-to-stand-planner/actions)
-[![IA Robot Sim](https://github.com/Intuitive-Autonomy/ia_robot_sim/workflows/Self-Hosted%20CI/badge.svg)](https://github.com/Intuitive-Autonomy/ia_robot_sim/actions)
+[![Central CI v2](https://github.com/Intuitive-Autonomy/team-nightly-tests/workflows/Central%20CI%20v2/badge.svg)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml)
 
 This repository provides centralized CI testing for multiple robotics projects in the team.
 
 ## Project Status
 
-| Repository | Status | Description |
-|------------|--------|-------------|
-| **Central CI** | [![Central CI](https://github.com/Intuitive-Autonomy/team-nightly-tests/workflows/Central%20CI%20-%20All%20Repositories/badge.svg)](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions) | Centralized testing for all repositories |
-| **Sit-to-Stand Planner** | [![CI](https://github.com/Intuitive-Autonomy/sit-to-stand-planner/workflows/Self-Hosted%20CI/badge.svg)](https://github.com/Intuitive-Autonomy/sit-to-stand-planner/actions) | Motion planning for sit-to-stand transitions |
-| **IA Robot Sim** | [![CI](https://github.com/Intuitive-Autonomy/ia_robot_sim/workflows/Self-Hosted%20CI/badge.svg)](https://github.com/Intuitive-Autonomy/ia_robot_sim/actions) | Robot simulation using Genesis |
-| **Genesis ROS** | [![CI](https://github.com/Intuitive-Autonomy/genesis_ros/workflows/Self-Hosted%20CI/badge.svg)](https://github.com/Intuitive-Autonomy/genesis_ros/actions) | ROS2 bridge for Genesis simulator |
-| **IA Robot URDF** | [![CI](https://github.com/Intuitive-Autonomy/ia_robot_urdf/workflows/Self-Hosted%20CI/badge.svg)](https://github.com/Intuitive-Autonomy/ia_robot_urdf/actions) | Robot description files |
-| **Genesis IA** | [![CI](https://github.com/Intuitive-Autonomy/Genesis_IA/workflows/Self-Hosted%20CI/badge.svg)](https://github.com/Intuitive-Autonomy/Genesis_IA/actions) | Genesis Integration for IA |
-| **Human Tracking** | [![CI](https://github.com/Intuitive-Autonomy/human-tracking/workflows/Self-Hosted%20CI/badge.svg)](https://github.com/Intuitive-Autonomy/human-tracking/actions) | Human pixel tracking from RGB cameras |
+| Repository | Description |
+|------------|-------------|
+| **sit-to-stand-planner** | Motion planning for sit-to-stand transitions |
+| **ia_robot_sim** | Robot simulation using Genesis |
+| **genesis_ros** | ROS2 bridge for Genesis simulator |
+| **ia_robot_urdf** | Robot description files |
+| **Genesis_IA** | Genesis Integration for IA |
+| **human-tracking** | Human pixel tracking from RGB cameras |
 
 **[View Dashboard](https://intuitive-autonomy.github.io/team-nightly-tests/dashboard-v2.html)** | **[Central CI Actions](https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml)**
 
