@@ -120,10 +120,13 @@ jobs:
       run: |
         echo "🔧 Setting up test environment for ${{ matrix.repository }}..."
 
+        # Convert repo name to lowercase for Docker tag
+        REPO_LOWER=$(echo "${{ matrix.repository }}" | tr '[:upper:]' '[:lower:]')
+
         # Check for different build systems
         if [[ -f "Dockerfile" ]]; then
           echo "Found Dockerfile - building Docker environment..."
-          docker build -t ${{ matrix.repository }}-test .
+          docker build -t ${REPO_LOWER}-test .
         elif [[ -f "requirements.txt" && "${{ steps.repo-config.outputs.type }}" == "python" ]]; then
           echo "Found Python project - setting up Python environment..."
           docker run --rm \
@@ -152,6 +155,9 @@ jobs:
         memory_limit=$(echo "$test_config" | jq -r '.memory_limit')
         cpu_limit=$(echo "$test_config" | jq -r '.cpu_limit')
 
+        # Convert repo name to lowercase for Docker tag
+        REPO_LOWER=$(echo "${{ matrix.repository }}" | tr '[:upper:]' '[:lower:]')
+
         echo "🧪 Running $test_type tests for ${{ matrix.repository }}..."
         echo "Memory limit: $memory_limit, CPU limit: $cpu_limit"
 
@@ -164,7 +170,7 @@ jobs:
             --user $(id -u):$(id -g) \
             -v $(pwd):/workspace \
             -w /workspace \
-            ${{ matrix.repository }}-test \
+            ${REPO_LOWER}-test \
             bash -c "
               if [[ -f '/opt/ros/humble/setup.bash' ]]; then
                 source /opt/ros/humble/setup.bash
@@ -231,8 +237,9 @@ jobs:
       if: always()
       run: |
         echo "🧹 Cleaning up ${{ matrix.repository }}..."
+        REPO_LOWER=$(echo "${{ matrix.repository }}" | tr '[:upper:]' '[:lower:]')
         rm -rf ${{ matrix.repository }} || true
-        docker rmi ${{ matrix.repository }}-test 2>/dev/null || true
+        docker rmi ${REPO_LOWER}-test 2>/dev/null || true
         rm -rf test-results || true
         docker system prune -f || true
 
