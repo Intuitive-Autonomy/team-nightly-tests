@@ -63,7 +63,7 @@ jobs:
   test-repositories:
     needs: load-config
     if: fromJson(needs.load-config.outputs.repositories)[0] != null
-    runs-on: ${{ matrix.repository == 'Genesis_IA' && 'ubuntu-latest' || 'self-hosted' }}
+    runs-on: self-hosted
     timeout-minutes: 60
     strategy:
       matrix:
@@ -115,23 +115,7 @@ jobs:
         echo "Current commit:"
         git log --oneline -1
 
-    - name: Setup Python (Genesis_IA only)
-      if: matrix.repository == 'Genesis_IA'
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
-
-    - name: Install Genesis_IA dependencies
-      if: matrix.repository == 'Genesis_IA'
-      working-directory: ./${{ matrix.repository }}
-      run: |
-        echo "🔧 Installing Genesis_IA natively on GitHub runner..."
-        pip install --upgrade pip setuptools wheel
-        pip3 install torch torchvision --index-url https://download.pytorch.org/whl/cpu
-        pip install -e '.[dev]'
-
     - name: Setup test environment (Docker-based repos)
-      if: matrix.repository != 'Genesis_IA'
       working-directory: ./${{ matrix.repository }}
       run: |
         echo "🔧 Setting up test environment for ${{ matrix.repository }}..."
@@ -167,27 +151,15 @@ jobs:
       timeout-minutes: ${{ fromJson(steps.repo-config.outputs.timeout_minutes) }}
       run: |
         test_type="${{ github.event.inputs.test_type || 'smoke' }}"
+        test_config='${{ needs.load-config.outputs.test-config }}'
+        memory_limit=$(echo "$test_config" | jq -r '.memory_limit')
+        cpu_limit=$(echo "$test_config" | jq -r '.cpu_limit')
+        REPO_LOWER=$(echo "${{ matrix.repository }}" | tr '[:upper:]' '[:lower:]')
 
         echo "🧪 Running $test_type tests for ${{ matrix.repository }}..."
+        echo "Memory limit: $memory_limit, CPU limit: $cpu_limit"
 
-        # Genesis_IA runs natively (no Docker)
-        if [[ "${{ matrix.repository }}" == "Genesis_IA" ]]; then
-          echo "Running Genesis_IA tests natively..."
-          export GS_TORCH_FORCE_CPU_DEVICE="1"
-          export TI_ENABLE_CUDA="0"
-          export GS_BACKEND="cpu"
-          chmod +x ${{ steps.repo-config.outputs.test_command }}
-          ${{ steps.repo-config.outputs.test_command }} $test_type
-        else
-          # Docker-based tests for other repos
-          test_config='${{ needs.load-config.outputs.test-config }}'
-          memory_limit=$(echo "$test_config" | jq -r '.memory_limit')
-          cpu_limit=$(echo "$test_config" | jq -r '.cpu_limit')
-          REPO_LOWER=$(echo "${{ matrix.repository }}" | tr '[:upper:]' '[:lower:]')
-
-          echo "Memory limit: $memory_limit, CPU limit: $cpu_limit"
-
-          if [[ -f "Dockerfile" ]]; then
+        if [[ -f "Dockerfile" ]]; then
           echo "Running tests in Docker environment..."
           docker run --rm \
             --memory=$memory_limit \
@@ -214,14 +186,13 @@ jobs:
               source /opt/ros/humble/setup.bash &&
               ${{ steps.repo-config.outputs.test_command }}
             "
+        else
+          echo "Running generic tests..."
+          if [[ -f "${{ steps.repo-config.outputs.test_command }}" ]]; then
+            chmod +x "${{ steps.repo-config.outputs.test_command }}"
+            ./${{ steps.repo-config.outputs.test_command }} $test_type
           else
-            echo "Running generic tests..."
-            if [[ -f "${{ steps.repo-config.outputs.test_command }}" ]]; then
-              chmod +x "${{ steps.repo-config.outputs.test_command }}"
-              ./${{ steps.repo-config.outputs.test_command }} $test_type
-            else
-              ${{ steps.repo-config.outputs.test_command }}
-            fi
+            ${{ steps.repo-config.outputs.test_command }}
           fi
         fi
 
