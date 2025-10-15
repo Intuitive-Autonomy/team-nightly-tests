@@ -10,7 +10,6 @@ export const repositoryConfig = {
             description: 'Motion planning for sit-to-stand transitions',
             techStack: ['ROS Humble', 'Docker', 'Python'],
             type: 'ros',
-            emoji: '🚶',
             workflowName: 'Self-Hosted%20CI',
             isPrivate: true,
             enabled: true
@@ -21,7 +20,46 @@ export const repositoryConfig = {
             description: 'Robot simulation using Genesis',
             techStack: ['Genesis', 'ROS2', 'Python'],
             type: 'genesis',
-            emoji: '🤖',
+            workflowName: 'Self-Hosted%20CI',
+            isPrivate: true,
+            enabled: true
+        },
+        {
+            name: 'genesis_ros',
+            displayName: 'Genesis ROS',
+            description: 'ROS2 bridge for the Genesis simulator',
+            techStack: ['ROS2', 'Genesis', 'C++'],
+            type: 'ros',
+            workflowName: 'Self-Hosted%20CI',
+            isPrivate: true,
+            enabled: true
+        },
+        {
+            name: 'ia_robot_urdf',
+            displayName: 'IA Robot URDF',
+            description: 'Robot description files for IA robot',
+            techStack: ['ROS2', 'URDF', 'YAML'],
+            type: 'ros',
+            workflowName: 'Self-Hosted%20CI',
+            isPrivate: true,
+            enabled: true
+        },
+        {
+            name: 'Genesis_IA',
+            displayName: 'Genesis IA',
+            description: 'Genesis Integration for IA',
+            techStack: ['Genesis', 'Python', 'Simulation'],
+            type: 'genesis',
+            workflowName: 'Self-Hosted%20CI',
+            isPrivate: true,
+            enabled: true
+        },
+        {
+            name: 'human-tracking',
+            displayName: 'Human Tracking',
+            description: 'Tracks human pixels from vertically concatenated RGB cameras',
+            techStack: ['Python', 'OpenCV', 'Computer Vision'],
+            type: 'python',
             workflowName: 'Self-Hosted%20CI',
             isPrivate: true,
             enabled: true
@@ -31,34 +69,21 @@ export const repositoryConfig = {
     // Additional repositories (can be enabled)
     additional: [
         {
-            name: 'genesis_ros',
-            displayName: 'Genesis ROS',
-            description: 'ROS2 bridge for the Genesis simulator',
-            techStack: ['ROS2', 'Genesis', 'C++'],
-            type: 'ros',
-            emoji: '🌍',
-            workflowName: 'CI',
-            isPrivate: true,
-            enabled: false
-        },
-        {
-            name: 'ia_robot_urdf',
-            displayName: 'IA Robot URDF',
-            description: 'Robot description files for IA robot',
-            techStack: ['ROS2', 'URDF', 'YAML'],
-            type: 'ros',
-            emoji: '🤖',
-            workflowName: 'CI',
-            isPrivate: true,
-            enabled: false
-        },
-        {
             name: 'robot_self_filter',
             displayName: 'Robot Self Filter',
             description: 'ROS2 version of the robot_self_filter package',
             techStack: ['ROS2', 'C++', 'PCL'],
             type: 'ros',
-            emoji: '🔧',
+            workflowName: 'CI',
+            isPrivate: true,
+            enabled: false
+        },
+        {
+            name: 'robot_planner',
+            displayName: 'Robot Planner',
+            description: 'Robot planning algorithms',
+            techStack: ['Python', 'Planning', 'Algorithms'],
+            type: 'python',
             workflowName: 'CI',
             isPrivate: true,
             enabled: false
@@ -69,7 +94,16 @@ export const repositoryConfig = {
             description: '3D human pose estimation with monocular RGB camera',
             techStack: ['Python', 'OpenCV', 'PyTorch'],
             type: 'python',
-            emoji: '👤',
+            workflowName: 'CI',
+            isPrivate: false,
+            enabled: false
+        },
+        {
+            name: 'human-pose-ia',
+            displayName: 'Human Pose IA',
+            description: 'Human pose estimation for IA applications',
+            techStack: ['Python', 'TensorFlow', 'OpenCV'],
+            type: 'python',
             workflowName: 'CI',
             isPrivate: false,
             enabled: false
@@ -83,7 +117,6 @@ export const repositoryConfig = {
         description: 'Centralized testing for all repositories',
         techStack: ['GitHub Actions', 'Docker', 'YAML'],
         type: 'ci',
-        emoji: '🎯',
         workflowName: 'Central%20CI%20-%20All%20Repositories',
         isPrivate: false,
         enabled: true
@@ -114,42 +147,42 @@ export function getRepositoriesByType(type) {
 // Quick actions configuration
 export const quickActions = [
     {
-        title: '🚀 Run Central CI v2',
+        title: 'Run Central CI v2',
         url: 'https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci-v2.yml',
         description: 'Run the new scalable CI system'
     },
     {
-        title: '🔄 Run Legacy Central CI',
+        title: 'Run Legacy Central CI',
         url: 'https://github.com/Intuitive-Autonomy/team-nightly-tests/actions/workflows/central-ci.yml',
         description: 'Run the original central CI'
     },
     {
-        title: '📊 View All Runs',
+        title: 'View All Runs',
         url: 'https://github.com/Intuitive-Autonomy/team-nightly-tests/actions',
         description: 'See all workflow executions'
     },
     {
-        title: '🚶 Sit-to-Stand Repo',
+        title: 'Sit-to-Stand Repo',
         url: 'https://github.com/Intuitive-Autonomy/sit-to-stand-planner',
         description: 'Motion planning repository'
     },
     {
-        title: '🤖 Robot Sim Repo',
+        title: 'Robot Sim Repo',
         url: 'https://github.com/Intuitive-Autonomy/ia_robot_sim',
         description: 'Genesis simulation repository'
     },
     {
-        title: '📖 Documentation',
+        title: 'Documentation',
         url: 'https://github.com/Intuitive-Autonomy/team-nightly-tests/blob/master/README.md',
         description: 'Central CI documentation'
     },
     {
-        title: '⚙️ Configuration',
+        title: 'Configuration',
         url: 'https://github.com/Intuitive-Autonomy/team-nightly-tests/blob/master/repositories.yml',
         description: 'Repository configuration file'
     },
     {
-        title: '🏢 Organization',
+        title: 'Organization',
         url: 'https://github.com/Intuitive-Autonomy',
         description: 'Intuitive Autonomy GitHub org'
     }
