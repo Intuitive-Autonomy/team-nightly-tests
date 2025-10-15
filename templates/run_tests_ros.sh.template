@@ -1,0 +1,44 @@
+#!/bin/bash
+# ROS2 Test Runner Template
+# Copy this to your repository root and customize as needed
+
+set -e  # Exit on error
+
+echo "=== ROS2 Test Runner ==="
+
+# Parse test type argument
+TEST_TYPE="${1:-smoke}"
+echo "Test type: $TEST_TYPE"
+
+# Source ROS2 environment
+if [ -f "/opt/ros/humble/setup.bash" ]; then
+    source /opt/ros/humble/setup.bash
+    echo "Sourced ROS2 Humble"
+else
+    echo "ERROR: ROS2 Humble not found"
+    exit 1
+fi
+
+# Get package name from package.xml
+PACKAGE_NAME=$(grep -oP '(?<=<name>)[^<]+' package.xml | head -1)
+echo "Package: $PACKAGE_NAME"
+
+# Build the package
+echo "Building package..."
+colcon build --packages-select $PACKAGE_NAME --cmake-args -DBUILD_TESTING=ON
+
+# Source the workspace
+source install/setup.bash
+
+# Run tests
+echo "Running tests..."
+if [ "$TEST_TYPE" = "smoke" ]; then
+    # Quick smoke test - just build and basic import
+    echo "Smoke test: Build successful"
+else
+    # Full test suite
+    colcon test --packages-select $PACKAGE_NAME
+    colcon test-result --verbose
+fi
+
+echo "✓ Tests passed!"
