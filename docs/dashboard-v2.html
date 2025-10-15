@@ -377,8 +377,9 @@
                 const jobsData = await jobsResponse.json();
 
                 // Find the job for this specific repository
+                // Matrix jobs are named: "test-repositories (repository-name)"
                 const repoJob = jobsData.jobs.find(job =>
-                    job.name.includes(repoName) || job.name.includes(`(${repoName})`)
+                    job.name === `test-repositories (${repoName})`
                 );
 
                 if (repoJob) {
