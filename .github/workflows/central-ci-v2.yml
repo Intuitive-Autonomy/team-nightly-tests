@@ -313,14 +313,11 @@ jobs:
           fi
 
           # Create shields.io endpoint JSON
-          cat > "badges-repo/badges/${repo}.json" << 'BADGE_EOF'
-{
-  "schemaVersion": 1,
-  "label": "tests",
-  "message": "'"${MESSAGE}"'",
-  "color": "'"${COLOR}"'"
-}
-BADGE_EOF
+          jq -n \
+            --arg message "$MESSAGE" \
+            --arg color "$COLOR" \
+            '{schemaVersion: 1, label: "tests", message: $message, color: $color}' \
+            > "badges-repo/badges/${repo}.json"
 
           echo "Created badge for $repo: $MESSAGE ($COLOR)"
         done
