@@ -161,32 +161,18 @@ jobs:
 
         if [[ -f "Dockerfile" ]]; then
           echo "Running tests in Docker environment..."
-
-          # Don't use --user for Python repos that need pip install
-          USER_FLAG=""
-          if [[ "${{ steps.repo-config.outputs.type }}" != "python" ]]; then
-            USER_FLAG="--user $(id -u):$(id -g)"
-          fi
-
           docker run --rm \
             --memory=$memory_limit \
             --cpus=$cpu_limit \
-            $USER_FLAG \
+            --user $(id -u):$(id -g) \
             -v $(pwd):/workspace \
             -w /workspace \
-            -e PATH="/root/.local/bin:\$PATH" \
-            -e HOST_UID=$(id -u) \
-            -e HOST_GID=$(id -g) \
             ${REPO_LOWER}-test \
             bash -c "
               if [[ -f '/opt/ros/humble/setup.bash' ]]; then
                 source /opt/ros/humble/setup.bash
               fi
               ${{ steps.repo-config.outputs.test_command }} $test_type || ${{ steps.repo-config.outputs.test_command }}
-              # Fix ownership of any files created by the container
-              if [[ -n \"\$HOST_UID\" && -n \"\$HOST_GID\" ]]; then
-                chown -R \$HOST_UID:\$HOST_GID /workspace 2>/dev/null || true
-              fi
             "
         elif [[ "${{ steps.repo-config.outputs.type }}" == "ros" ]]; then
           echo "Running ROS tests..."
@@ -258,88 +244,7 @@ jobs:
     needs: [load-config, test-repositories]
     if: always()
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        path: badges-repo
-
-    - name: Setup badges branch
-      run: |
-        cd badges-repo
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-
-        # Try to checkout badges branch, create if it doesn't exist
-        git fetch origin badges 2>/dev/null || true
-        if git rev-parse --verify origin/badges >/dev/null 2>&1; then
-          git checkout badges
-        else
-          git checkout --orphan badges
-          git rm -rf . 2>/dev/null || true
-        fi
-
-        mkdir -p badges
-
-    - name: Generate per-repository status badges
-      env:
-        GH_TOKEN: ${{ github.token }}
-      run: |
-        # Get the current workflow run ID
-        RUN_ID="${{ github.run_id }}"
-
-        # Fetch all jobs for this workflow run
-        JOBS=$(gh api repos/${{ github.repository }}/actions/runs/${RUN_ID}/jobs --jq '.jobs')
-
-        # Process each repository
-        repositories='${{ needs.load-config.outputs.repositories }}'
-        echo "$repositories" | jq -r '.[]' | while read repo; do
-          echo "Processing badge for $repo..."
-
-          # Find the job for this repository
-          JOB_CONCLUSION=$(echo "$JOBS" | jq -r ".[] | select(.name == \"test-repositories ($repo)\") | .conclusion")
-
-          # Determine badge parameters
-          if [[ "$JOB_CONCLUSION" == "success" ]]; then
-            MESSAGE="passing"
-            COLOR="brightgreen"
-          elif [[ "$JOB_CONCLUSION" == "failure" ]]; then
-            MESSAGE="failing"
-            COLOR="red"
-          elif [[ "$JOB_CONCLUSION" == "skipped" ]]; then
-            MESSAGE="skipped"
-            COLOR="lightgrey"
-          elif [[ "$JOB_CONCLUSION" == "cancelled" ]]; then
-            MESSAGE="cancelled"
-            COLOR="orange"
-          else
-            MESSAGE="unknown"
-            COLOR="lightgrey"
-          fi
-
-          # Create shields.io endpoint JSON
-          jq -n \
-            --arg message "$MESSAGE" \
-            --arg color "$COLOR" \
-            '{schemaVersion: 1, label: "tests", message: $message, color: $color}' \
-            > "badges-repo/badges/${repo}.json"
-
-          echo "Created badge for $repo: $MESSAGE ($COLOR)"
-        done
-
-    - name: Commit and push badges
-      run: |
-        cd badges-repo
-        git add badges/
-        if git diff --staged --quiet; then
-          echo "No changes to badges"
-        else
-          git commit -m "Update test status badges [skip ci]"
-          git push origin badges || (git checkout --orphan badges && git add badges/ && git commit -m "Initialize badges branch" && git push -u origin badges)
-        fi
-
     - name: Generate comprehensive test report
       run: |
         echo "## 🤖 Central CI v2 Test Results" >> $GITHUB_STEP_SUMMARY
